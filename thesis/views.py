@@ -2,14 +2,16 @@ from forms import UploadFileForm
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from serializers import CreateReviewSerializer
 from services import (
+    create_review,
     list_uploaded_files,
     register_uploaded_file,
     submit_thesis,
     upload_file_to_s3,
 )
 
-from authentication.permissions import IsStudent
+from authentication.permissions import IsInstructor, IsStudent
 
 
 # https://github.com/axelpale/minimal-django-file-upload-example/blob/master/src/for_django_3-0/myapp/views.py
@@ -51,3 +53,19 @@ class SubmitThesisView(APIView):
             )
         thesis = submit_thesis(uploaded_file_id, thesis_title)
         return thesis
+
+
+class ReviewThesisView(APIView):
+    permission_classes = (IsInstructor,)
+
+    def post(self, request):
+        serializer = CreateReviewSerializer(request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        thesis_id = serializer.validated_data.get("thesis_id")
+        comment = serializer.validated_data.get("comments")
+        is_approved = serializer.validated_data.get("is_approved")
+
+        review = create_review(thesis_id, comment, is_approved)
+        return review

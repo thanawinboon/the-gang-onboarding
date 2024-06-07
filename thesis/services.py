@@ -2,7 +2,7 @@ import datetime
 import os
 
 from dotenv import load_dotenv
-from models import Thesis, UploadedFile
+from models import Review, Thesis, UploadedFile
 
 load_dotenv()
 ACCESS_KEY = os.getenv("S3_ACCESS_KEY_ID")
@@ -46,3 +46,19 @@ def submit_thesis(uploaded_file_id, thesis_title):
     )
     thesis.save()
     return thesis
+
+
+def create_review(thesis_id, comments, is_approved):
+    target_thesis = Thesis.objects.get(id=thesis_id)
+    new_review = Review(
+        thesis=target_thesis,
+        comments=comments,
+        is_approved=is_approved,
+    )
+    new_review.save()
+    if is_approved:
+        target_thesis.status = Thesis.ThesisStatus.APPROVED
+    else:
+        target_thesis.status = Thesis.ThesisStatus.REJECTED
+    target_thesis.save()
+    return new_review
