@@ -3,6 +3,18 @@ from rest_framework import serializers
 from authentication.models import Admin, Instructor, Student
 
 
+class InstructorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Instructor
+        fields = ["id", "first_name", "last_name"]
+
+
+class StudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = ["id", "first_name", "last_name", "student_id", "major"]
+
+
 class RegisterAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Admin
