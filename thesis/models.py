@@ -26,3 +26,12 @@ class Review(models.Model):
     thesis = models.ForeignKey(Thesis, on_delete=models.CASCADE)
     comments = models.TextField()
     is_approved = models.BooleanField(default=False)
+
+
+class UploadedFile(models.Model):
+    id = models.AutoField(primary_key=True)
+    uploader = models.ForeignKey(Student, on_delete=models.CASCADE)
+    s3_url = models.URLField()
+
+    # in case we can use a scheduler to remove the file after it expires
+    expires = models.DateTimeField()
